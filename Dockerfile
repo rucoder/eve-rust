@@ -1,5 +1,5 @@
 ARG RUST_VERSION=1.85.1
-FROM --platform=$BUILDPLATFORM rust:${RUST_VERSION}-alpine3.20 AS tools-host
+FROM --platform=$BUILDPLATFORM rust:${RUST_VERSION}-alpine3.22 AS tools-host
 ARG BUILDPLATFORM
 ARG TARGETARCH
 
@@ -24,7 +24,7 @@ ADD config.toml /usr/local/cargo/
 RUN cargo install --root /cargo-cross cargo-chef@0.1.71 cargo-sbom@0.9.1
 
 
-FROM rust:${RUST_VERSION}-alpine3.20 AS tools-target-base
+FROM rust:${RUST_VERSION}-alpine3.22 AS tools-target-base
 ENV TARGETS="x86_64-unknown-linux-musl aarch64-unknown-linux-musl x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu riscv64gc-unknown-linux-gnu"
 RUN rustup target add ${TARGETS}
 
