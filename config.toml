@@ -18,11 +18,16 @@ rustflags = [
 
 # FIXME: riscv64 is not yet available in rust:1.80.1-alpine3.20
 # but both clang and mold support it. Also musl-dev is available in Alpine 3.20
-# [target.riscv64gc-unknown-linux-gnu]
-# linker = "/usr/bin/clang"
-# rustflags = [
-#     "-C",
-#     "link-arg=--ld-path=/usr/bin/mold",
-#     "-C",
-#     "link-arg=--target=riscv64-unknown-linux-musl",
-# ]
+[target.riscv64gc-unknown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = [
+    "-C",
+    "link-arg=--ld-path=/usr/bin/mold",
+    "-C",
+    "link-arg=--target=riscv64-unknown-linux-musl",
+]
+
+[env]
+CC_aarch64_unknown_linux_musl = "clang"
+CFLAGS_aarch64_unknown_linux_musl = "--target=aarch64-linux-musl"
+RANLIB_aarch64_unknown_linux_musl = "llvm-ranlib"
