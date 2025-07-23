@@ -35,6 +35,8 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path --default-tool
 ENV TARGETS="x86_64-unknown-linux-musl aarch64-unknown-linux-musl x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu riscv64gc-unknown-linux-gnu"
 RUN rustup target add ${TARGETS}
 
+ADD config.toml /usr/local/cargo/
+
 COPY --from=cross-compilers /packages /packages
 RUN apk add --no-cache --allow-untrusted -X /packages "build-base-aarch64"
 RUN apk add --no-cache --allow-untrusted -X /packages "build-base-riscv64"
@@ -58,6 +60,39 @@ COPY --from=target-sysroot-riscv64 / /tmp/target-sysroot-riscv64
 ADD ./cross-gcc-lib-install.sh /usr/bin/cross-gcc-lib-install.sh
 ENV GCC_LIBS="musl-dev libgcc libstdc++"
 RUN cross-gcc-lib-install.sh
+
+
+
+RUN mkdir /mold
+RUN wget  https://dl-cdn.alpinelinux.org/alpine/v3.21/community/x86_64/mimalloc2-2.1.7-r0.apk \
+    -O /mold/mimalloc2.apk && \
+    apk add --no-cache --allow-untrusted /mold/mimalloc2.apk
+
+RUN wget  https://dl-cdn.alpinelinux.org/alpine/v3.21/community/x86_64/mold-2.34.1-r1.apk \
+    -O /mold/mold.apk && \
+    apk add --no-cache --allow-untrusted /mold/mold.apk
+
+# ADD https://github.com/rui314/mold.git /mold/
+# WORKDIR /mold
+# RUN apk add cmake \
+#     linux-headers \
+#     samurai \
+#     zlib-dev \
+#     zstd-dev
+
+# RUN cmake -B build -G Ninja \
+#     -DCMAKE_INSTALL_PREFIX=/usr \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON \
+#     -DMOLD_LTO=ON \
+#     -DMOLD_USE_SYSTEM_MIMALLOC=ON \
+#     -DMOLD_USE_SYSTEM_TBB=ON \
+#     -DBUILD_TESTING="$(want_check && echo ON || echo OFF)"
+
+# RUN	cmake --build build
+
+
+RUN apk add  clang python3 git perl protoc
 
 
 # # FROM tools-host AS target-amd64
